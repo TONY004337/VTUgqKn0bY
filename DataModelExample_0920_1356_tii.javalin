@@ -1,0 +1,72 @@
+// 代码生成时间: 2025-09-20 13:56:08
+import io.javalin.Javalin;
+import io.javalin.apibuilder.ApiBuilder.*;
+import io.javalin.http.Context;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * DataModelExample is a Javalin application showcasing a simple data model.
+ */
+public class DataModelExample {
+
+    // Define a simple data model class
+    public static class User {
+        private String name;
+        private int age;
+
+        // Constructor
+        public User(String name, int age) {
+            this.name = name;
+            this.age = age;
+        }
+
+        // Getters and setters
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public int getAge() {
+            return age;
+        }
+
+        public void setAge(int age) {
+            this.age = age;
+        }
+    }
+
+    public static void main(String[] args) {
+        Javalin app = Javalin.create().start(7000); // Start the Javalin server on port 7000
+
+        // Define routes
+        app.routes(() -> {
+
+            // GET route to retrieve all users
+            get("/users", ctx -> {
+                Map<String, User> users = new HashMap<>(); // Simulating a database with a Map
+                users.put("1", new User("Alice", 30));
+                users.put("2", new User("Bob", 25));
+
+                ctx.json(users); // Return the list of users as JSON
+            });
+
+            // POST route to add a new user
+            post("/users", ctx -> {
+                String requestBody = ctx.body();
+                try {
+                    User newUser = ctx.fromJson(requestBody, User.class); // Parse the request body to a User object
+                    Map<String, User> users = new HashMap<>(); // Simulating a database with a Map
+                    users.put(newUser.getName(), newUser); // Store the new user
+
+                    ctx.status(201).json(newUser); // Return the newly created user with a 201 status code
+                } catch (Exception e) {
+                    ctx.status(400).result("Error processing request: " + e.getMessage()); // Handle parsing errors
+                }
+            });
+        });
+    }
+}
